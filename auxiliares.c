@@ -45,34 +45,34 @@ void atualizaVelocidade(PARTICULA a, PARTICULA b)
 
 float calculaForca(PARTICULA a, PARTICULA b)
 {
+    float G = 1; //igual a 1 para testes
     float distancia = calculaDistanciaR3(a, b);
-    float intensidadeForca = (a.massa * b.massa * distancia) / pow(distancia, 3);
+    float intensidadeForca = G * (a.massa * b.massa * distancia) / pow(distancia, 3);
     return intensidadeForca;
 }
 
-void atualizaParticulas(PARTICULA* particula, int numero_de_particulas)
+void atualizaParticulas(PARTICULA* particula, int numero_de_particulas, int iteracoes)
 {
-    int i, j;
-    for(i=0; i<numero_de_particulas; i++)
+    int i, j, k;
+
+    for(i = 0; i < iteracoes; i++)
     {
-        for(j= 0; j<numero_de_particulas; j++)
-         {
-            if(j == i)
+        for(j = 0; j < numero_de_particulas; j++)
+        {
+            for(k = 0; k < numero_de_particulas; k++)
             {
-                continue;
+                if(j == k)
+                {
+                    continue;
+                }
+                else
+                {
+                    atualizaAceleracao(particula[j], particula[k]);
+                    atualizaVelocidade(particula[j], particula[k]);
+                }
             }
-            else
-            {
-                atualizaVelocidade(particula[i], particula[j]);
-                atualizaAceleracao(particula[i], particula[j]);
-            }
+
         }
     }
     return;
-}
-
-int main()
-{
-    /* code */
-    return 0;
 }
