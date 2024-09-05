@@ -105,9 +105,8 @@ void printLog(PARTICULA *particles, int nParticles, int timestep){
     sprintf(fileName, "%s-%d-log.txt", __FILE__,  timestep);
     fprintf(stdout, "Saving file [%s] ", fileName); fflush(stdout);
     FILE *ptr = fopen(fileName, "w+");
-      for(int i = 0; i < nParticles; i++){
-            fprintf(ptr, "%d \t %.10f %.10f %.10f \t %.10f %.10f %.10f \t %.10f %.10f %.10f \n", i,  particles[i].coord.x, particles[i].coord.y, particles[i].coord.z,  particles[i].velocidade.x, particles[i].velocidade.y, particles[i].velocidade.z, particles[i].forca_sofrida.x, particles[i].forca_sofrida.y, particles[i].forca_sofrida.z);
-
+    for(int i = 0; i < nParticles; i++){
+        fprintf(ptr, "%d \t %.10f %.10f %.10f \t %.10f %.10f %.10f \t %.10f %.10f %.10f \n", i,  particles[i].coord.x, particles[i].coord.y, particles[i].coord.z,  particles[i].velocidade.x, particles[i].velocidade.y, particles[i].velocidade.z, particles[i].forca_sofrida.x, particles[i].forca_sofrida.y, particles[i].forca_sofrida.z);
     }
     fclose(ptr);
     fprintf(stdout, "[OK]\n"); fflush(stdout);
@@ -138,7 +137,6 @@ int main (int ac, char **av){
     atualizaParticulas(particles, nParticles, timesteps, dt);
     //STOP_STOPWATCH(stopwatch);
 
-
     //fprintf(stdout, "Elapsed time: %lf (s) \n", stopwatch.mElapsedTime);
     FILE *ptr = fopen(logFile, "a+");
     assert(ptr != NULL);
@@ -150,5 +148,4 @@ int main (int ac, char **av){
           printLog(particles, nParticles, timesteps);
 
     free(particles);
-
 }
