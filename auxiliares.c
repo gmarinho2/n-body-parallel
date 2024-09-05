@@ -2,10 +2,17 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define MASSA 1
+#define EPSILON 1E-9
+
+void leParticulas(FILE arquivo)
+{
+    return;
+}
+
 typedef struct vetor
 {
     float x, y, z;
-    float intensidade;
 } VETOR;
 
 typedef struct posicao
@@ -16,15 +23,9 @@ typedef struct posicao
 typedef struct particula
 {
     POSICAO coord;
-    float massa;
-    VETOR acelaracao;
+    VETOR forca_sofrida;
     VETOR velocidade;
 } PARTICULA;
-
-void leParticulas(FILE arquivo)
-{
-    return;
-}
 
 float calculaDistanciaR3(PARTICULA a, PARTICULA b)
 {
@@ -33,45 +34,59 @@ float calculaDistanciaR3(PARTICULA a, PARTICULA b)
     return distancia;
 }
 
-void atualizaAceleracao(PARTICULA a, PARTICULA b)
+void atualizaVelocidade(PARTICULA* particula, float dt)
 {
+    particula->velocidade.x += dt * particula->forca_sofrida.x;
+    particula->velocidade.y += dt * particula->forca_sofrida.y;
+    particula->velocidade.z += dt * particula->forca_sofrida.z;
     return;
 }
 
-void atualizaVelocidade(PARTICULA a, PARTICULA b)
+void atualizaCoordenada(PARTICULA* particula, float dt)
 {
+    particula->coord.x += dt * particula->velocidade.x;
+    particula->coord.y += dt * particula->velocidade.y;
+    particula->coord.z += dt * particula->velocidade.z;
     return;
 }
 
-float calculaForca(PARTICULA a, PARTICULA b)
+float calculaForca(PARTICULA a, PARTICULA b, float* dx, float* dy, float* dz)
 {
-    float G = 1; //igual a 1 para testes
-    float distancia = calculaDistanciaR3(a, b);
-    float intensidadeForca = G * (a.massa * b.massa * distancia) / pow(distancia, 3);
+    float G = 1; //constante gravitacional
+    float distancia = calculaDistancia(a, b);
+    float intensidadeForca = G * MASSA * MASSA / distancia + EPSILON; //para nao dar zero
+    
+    *dx = a.coord.x - b.coord.x; // influencia da força no 
+    *dy = a.coord.y - b.coord.y; // vetor decomposto, em cada eixo
+    *dz = a.coord.z - b.coord.z;
+
     return intensidadeForca;
 }
 
-void atualizaParticulas(PARTICULA* particula, int numero_de_particulas, int iteracoes)
+void atualizaParticulas(PARTICULA* particula, int numero_de_particulas, int iteracoes, float dt)
 {
     int i, j, k;
-
     for(i = 0; i < iteracoes; i++)
     {
         for(j = 0; j < numero_de_particulas; j++)
         {
             for(k = 0; k < numero_de_particulas; k++)
             {
-                if(j == k)
+                if(j != k)
                 {
-                    continue;
-                }
-                else
-                {
-                    atualizaAceleracao(particula[j], particula[k]);
-                    atualizaVelocidade(particula[j], particula[k]);
+                    float dx = 0.0f, dy = 0.0f, dz = 0.0f;
+                    float forca = calculaForca(particula[j], particula[k], &dx, &dy, &dz);
+                    particula[i].forca_sofrida.x = dx * forca;
+                    particula[i].forca_sofrida.y = dy * forca;
+                    particula[i].forca_sofrida.z = dz * forca;
                 }
             }
+        }
 
+        for (j = 0; j<numero_de_particulas; j++)
+        {
+            atualizaVelocidade(&particula[j], dt);
+            atualizaCoordenada(&particula[j], dt);
         }
     }
     return;
