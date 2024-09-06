@@ -1,7 +1,7 @@
 sequencial:
-	gcc n-corpos-sequencial.c -o sequencial -lm
-	time ./sequencial 100 1000 1 "log_sequencial"
+	gcc n-corpos-sequencial.c domain/Calculate.c domain/Log.c domain/Update.c -o bin/sequencial -lm
+	time ./bin/sequencial 100 1000 1 "Log/Sequencial/LogSequencial"
 
-multi:
-	gcc n-corpos-multithread.c -o multi -lm -fopenmp
-	time ./multi 100 1000 1 "log_multi"
+parallel:
+	gcc n-corpos-multithread.c domain/Calculate.c domain/Log.c domain/Update.c -o bin/parallel -lm -fopenmp
+	time ./bin/parallel 100 1000 1 "Log/Parallel/LogParallel"
