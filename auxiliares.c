@@ -71,14 +71,14 @@ float calculaForca(PARTICULA a, PARTICULA b, float* dx, float* dy, float* dz)
     return intensidadeForca;
 }
 
-void atualizaParticulas(PARTICULA* particula, int numero_de_particulas, int iteracoes, float dt)
+void atualizaParticulas(PARTICULA* particula, int quantParticulas, int iteracoes, float dt)
 {
     int i, j, k;
     for(i = 0; i < iteracoes; i++)
     {
-        for(j = 0; j < numero_de_particulas; j++)
+        for(j = 0; j < quantParticulas; j++)
         {
-            for(k = 0; k < numero_de_particulas; k++)
+            for(k = 0; k < quantParticulas; k++)
             {
                 if(j != k)
                 {
@@ -91,61 +91,67 @@ void atualizaParticulas(PARTICULA* particula, int numero_de_particulas, int iter
             }
         }
 
-        for (j = 0; j<numero_de_particulas; j++)
+        for (j = 0; j<quantParticulas; j++)
         {
-            atualizaVelocidade(&particula[j], dt);
-            atualizaCoordenada(&particula[j], dt);
+             particula->velocidade.x += dt * particula->forca_sofrida.x;
+            particula->velocidade.y += dt * particula->forca_sofrida.y;
+            particula->velocidade.z += dt * particula->forca_sofrida.z;
+
+    
+                particula->coord.x += dt * particula->velocidade.x;
+    particula->coord.y += dt * particula->velocidade.y;
+    particula->coord.z += dt * particula->velocidade.z;
         }
     }
     return;
 }
 
-void printLog(PARTICULA *particles, int nParticles, int timestep){
+void printLog(PARTICULA *particles, int quantParticulas, int timestep){
     char fileName[128];
     sprintf(fileName, "%s-%d-log.txt", __FILE__,  timestep);
     fprintf(stdout, "Saving file [%s] ", fileName); fflush(stdout);
     FILE *ptr = fopen(fileName, "w+");
-    for(int i = 0; i < nParticles; i++){
+    for(int i = 0; i < quantParticulas; i++){
         fprintf(ptr, "%d \t %.10f %.10f %.10f \t %.10f %.10f %.10f \t %.10f %.10f %.10f \n", i,  particles[i].coord.x, particles[i].coord.y, particles[i].coord.z,  particles[i].velocidade.x, particles[i].velocidade.y, particles[i].velocidade.z, particles[i].forca_sofrida.x, particles[i].forca_sofrida.y, particles[i].forca_sofrida.z);
     }
     fclose(ptr);
     fprintf(stdout, "[OK]\n"); fflush(stdout);
 }
 
-int main (int ac, char **av){
-    int timesteps  = atoi(av[1]),
-        nParticles = atoi(av[2]),
-        flagSave = atoi(av[3]);
+int main (int ac, char **av)
+{
+    int timesteps = atoi(av[1]), quantParticulas = atoi(av[2]), flagSave = atoi(av[3]);
+
+    clock_t t;
+    t = clock();
 
     char logFile[1024];
     float       dt        =  0.01f;
-    PARTICULA *particles = NULL;
-
-    //Stopwatch stopwatch;
+    PARTICULA *particulas = NULL;
 
     strcpy(logFile, av[4]);
 
-    fprintf(stdout, "\nP2P particle system \n");
-    fprintf(stdout, "Memory used %lu bytes \n", nParticles * sizeof(PARTICULA));
-    fprintf(stdout, "File %s \n", logFile);
+    fprintf(stdout, "\nSistema de particulas P2P(particula a particula)\n");
+    fprintf(stdout, "Memória utilizada %lu bytes \n", quantParticulas * sizeof(PARTICULA));
+    fprintf(stdout, "Arquivo %s \n", logFile);
 
-    particles = (PARTICULA *) aligned_alloc(ALING, nParticles * sizeof(PARTICULA));
-    assert(particles != NULL);
+    particulas = (PARTICULA *) aligned_alloc(ALING, quantParticulas * sizeof(PARTICULA));
+    assert(particulas != NULL);
 
-    inicializador(particles, nParticles);
-    //START_STOPWATCH(stopwatch);
-    atualizaParticulas(particles, nParticles, timesteps, dt);
-    //STOP_STOPWATCH(stopwatch);
+    inicializador(particulas, quantParticulas);
 
-    //fprintf(stdout, "Elapsed time: %lf (s) \n", stopwatch.mElapsedTime);
+    atualizaParticulas(particulas, quantParticulas, timesteps, dt);
+
+    t = clock() - t;
+    double time_taken = ((double)t)/CLOCKS_PER_SEC;
+    fprintf(stdout, "Elapsed time: %lf (s) \n", time_taken);
+
     FILE *ptr = fopen(logFile, "a+");
     assert(ptr != NULL);
-    //printf(ptr, "%lu;%lf\n", nParticles * sizeof(tpParticle), stopwatch.mElapsedTime);
-
     fclose(ptr);
 
     if (flagSave == 1)
-          printLog(particles, nParticles, timesteps);
+          printLog(particulas, quantParticulas, timesteps);
 
-    free(particles);
+    free(particulas);
 }
