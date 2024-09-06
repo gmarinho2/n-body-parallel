@@ -11,12 +11,12 @@
 
 typedef struct vetor
 {
-    float x, y, z;
+    double x, y, z;
 } VETOR;
 
 typedef struct posicao
 {
-    float x, y, z;
+    double x, y, z;
 } POSICAO;
 
 typedef struct particula
@@ -26,21 +26,21 @@ typedef struct particula
     VETOR velocidade;
 } PARTICULA;
 
-float calculaDistancia(PARTICULA a, PARTICULA b)
+double calculaDistancia(PARTICULA a, PARTICULA b)
 {
-    float distancia;
+    double distancia;
     distancia = sqrt(pow(a.coord.x - b.coord.x, 2) + pow(a.coord.y - b.coord.y, 2) + pow(a.coord.z - b.coord.z, 2));
     return distancia;
 }
 
-void atualizaVelocidade(PARTICULA* particula, float dt)
+void atualizaVelocidade(PARTICULA* particula, double dt)
 {
     particula->velocidade.x += dt * particula->forca_sofrida.x;
     particula->velocidade.y += dt * particula->forca_sofrida.y;
     particula->velocidade.z += dt * particula->forca_sofrida.z;
 }
 
-void atualizaCoordenada(PARTICULA* particula, float dt)
+void atualizaCoordenada(PARTICULA* particula, double dt)
 {
     particula->coord.x += dt * particula->velocidade.x;
     particula->coord.y += dt * particula->velocidade.y;
@@ -52,17 +52,17 @@ void inicializador(PARTICULA *particula, int quantidade)
     srand(42);
     memset(particula, 0x00, quantidade * sizeof(PARTICULA));
     for (int i = 0; i < quantidade ; i++){
-        particula[i].coord.x =  2.0 * (rand() / (float)RAND_MAX) - 1.0;
-        particula[i].coord.y =  2.0 * (rand() / (float)RAND_MAX) - 1.0;
-        particula[i].coord.z =  2.0 * (rand() / (float)RAND_MAX) - 1.0;
+        particula[i].coord.x =  2.0 * (rand() / (double)RAND_MAX) - 1.0;
+        particula[i].coord.y =  2.0 * (rand() / (double)RAND_MAX) - 1.0;
+        particula[i].coord.z =  2.0 * (rand() / (double)RAND_MAX) - 1.0;
       }
 }
 
 double calculaForca(PARTICULA a, PARTICULA b, double* dx, double* dy, double* dz)
 {
-    float G = 1; //constante gravitacional
-    float distancia = calculaDistancia(a, b);
-    float intensidadeForca = G * MASSA * MASSA / distancia + EPSILON; //para nao dar zero
+    double G = 1; //constante gravitacional
+    double distancia = calculaDistancia(a, b);
+    double intensidadeForca = G * MASSA * MASSA / distancia + EPSILON; //para nao dar zero
     
     *dx = a.coord.x - b.coord.x; // influencia da força no 
     *dy = a.coord.y - b.coord.y; // vetor decomposto, em cada eixo
