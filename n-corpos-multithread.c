@@ -2,25 +2,27 @@
 
 void simulacao(PARTICULA* particula, int quantParticulas, int timesteps, double dt)
 {
+    double forca;
+    double dx, dy, dz;
     int i, j, k;
     for(i = 0; i < timesteps; i++)
     {
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads ( 8 ) private( dx, dy, dz, forca)
         for(j = 0; j < quantParticulas; j++)
         {
             for(k = 0; k < quantParticulas; k++)
             {
                 if(j != k)
                 {
-                    double dx = 0.0f, dy = 0.0f, dz = 0.0f;
-                    double forca = calculaForca(particula[j], particula[k], &dx, &dy, &dz);
+                    dx = 0.0f, dy = 0.0f, dz = 0.0f;
+                    forca = calculaForca(particula[j], particula[k], &dx, &dy, &dz);
                     particula[j].forca_sofrida.x = dx * forca;
                     particula[j].forca_sofrida.y = dy * forca;
                     particula[j].forca_sofrida.z = dz * forca;
                 }
             }
         }
-        #pragma omp parallel for
+        //#pragma omp parallel for
         for (j=0; j<quantParticulas; j++)
         {
             atualizaVelocidade(&particula[j], dt);
