@@ -7,6 +7,7 @@
 #include <time.h>
 #include <math.h>
 #include <string.h>
+#include <omp.h>
 
 #define MASSA 1
 #define EPSILON 1E-9

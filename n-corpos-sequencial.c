@@ -64,3 +64,4 @@ int main (int ac, char **av)
           printLog(particulas, quantParticulas, timesteps, "Sequencial");
     free(particulas);
 }
+
