@@ -54,7 +54,7 @@ int main (int ac, char **av)
 
     t = clock() - t;
     double time_taken = ((double)t)/CLOCKS_PER_SEC;
-    fprintf(stdout, "Elapsed time: %lf (s) \n", time_taken);
+    fprintf(stdout, "Tempo gasto: %lf (s) \n\n", time_taken);
 
     FILE *ptr = fopen(logFile, "a+");
     assert(ptr != NULL);

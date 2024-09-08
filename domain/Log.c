@@ -5,9 +5,9 @@ void printLog(PARTICULA *particles, int quantParticulas, int timestep, char* typ
     char path[100] = "../";
     sprintf(path, "Log/%s/Log%d-log.txt", type, timestep);
     fprintf(stdout, "Saving file [%s] ", path); fflush(stdout);
-    FILE *ptr = fopen(path, "w+");
+    FILE *arquivo = fopen(path, "w+");
     for(int i = 0; i < quantParticulas; i++){
-        fprintf(ptr, "%d \t %.10f %.10f %.10f \t %.10f %.10f %.10f \t %.10f %.10f %.10f \n",
+        fprintf(arquivo, "%d \t %.10f %.10f %.10f \t %.10f %.10f %.10f \t %.10f %.10f %.10f \n",
          i,  
             particles[i].coord.x, particles[i].coord.y, particles[i].coord.z,
 
@@ -15,6 +15,6 @@ void printLog(PARTICULA *particles, int quantParticulas, int timestep, char* typ
             
             particles[i].forca_sofrida.x, particles[i].forca_sofrida.y, particles[i].forca_sofrida.z);
     }
-    fclose(ptr);
+    fclose(arquivo);
     fprintf(stdout, "[OK]\n"); fflush(stdout);
 }
