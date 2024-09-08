@@ -56,9 +56,10 @@ int main (int ac, char **av)
     double time_taken = ((double)t)/CLOCKS_PER_SEC;
     fprintf(stdout, "Tempo gasto: %lf (s) \n\n", time_taken);
 
-    FILE *ptr = fopen(logFile, "a+");
-    assert(ptr != NULL);
-    fclose(ptr);
+    FILE *log = fopen(logFile, "a+");
+    assert(log != NULL);
+    fprintf(log, "Timesteps: %d\nNúmero de Particulas: %d\nMemória em bytes:%lu\nTempo em segundos:%lf\n-----------------------------",timesteps,quantParticulas,quantParticulas * sizeof(particulas), time_taken);
+    fclose(log);
 
     if (flagSave == 1)
           printLog(particulas, quantParticulas, timesteps, "Sequencial");
