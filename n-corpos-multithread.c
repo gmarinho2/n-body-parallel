@@ -75,7 +75,7 @@ int main (int ac, char **av)
 
     FILE *log = fopen(logFile, "a+");
     assert(log != NULL);
-    fprintf(log, "Memória em bytes:\n%lu\n\n;Tempo em segundos:\n%lf\n", quantParticulas * sizeof(particulas), time_taken);
+    fprintf(log, "Timesteps: %d\nNúmero de Particulas: %d\nMemória em bytes:%lu\nTempo em segundos:%lf\n-----------------------------\n",timesteps,quantParticulas,quantParticulas * sizeof(particulas), time_taken);
     fclose(log);
 
     if (flagSave == 1)
