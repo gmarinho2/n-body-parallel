@@ -2,29 +2,26 @@
 
 void simulacao(PARTICULA* particula, int quantParticulas, int timesteps, double dt)
 {
-    double forca;
-    double dx, dy, dz;
-    int i, j, k;
-   
-
-    for(i = 0; i < timesteps; i++)
+    for(int i = 0; i < timesteps; i++)
     {
-        omp_set_num_threads(12);
-        
         #pragma omp parallel shared(particula, quantParticulas, dt)
         {
             #pragma omp for
-            for(j = 0; j < quantParticulas; j++)
+            for(int j = 0; j < quantParticulas; j++)
             {
-                for(k = 0; k < quantParticulas; k++)
+                for(int k = 0; k < quantParticulas; k++)
                 {
                     if(j != k)
                     {
+                        double forca;
+                        double dx, dy, dz;
                         dx = 0.0f, dy = 0.0f, dz = 0.0f;
+
                         forca = calculaForca(particula[j], particula[k], &dx, &dy, &dz);
-                        particula[j].forca_sofrida.x = dx * forca;
-                        particula[j].forca_sofrida.y = dy * forca;
-                        particula[j].forca_sofrida.z = dz * forca;
+                        
+                        particula[j].forca_sofrida.x += dx * forca;
+                        particula[j].forca_sofrida.y += dy * forca;
+                        particula[j].forca_sofrida.z += dz * forca;
                     }
                 }
             }
@@ -32,15 +29,12 @@ void simulacao(PARTICULA* particula, int quantParticulas, int timesteps, double 
             #pragma omp barrier
 
             #pragma omp for
-            for (j=0; j<quantParticulas; j++)
+            for (int j=0; j<quantParticulas; j++)
             {
                 atualizaVelocidade(&particula[j], dt);
                 atualizaCoordenada(&particula[j], dt);
             }
-
-            #pragma omp barrier
         }
-        return;
     }
 }
 

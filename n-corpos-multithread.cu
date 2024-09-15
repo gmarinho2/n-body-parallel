@@ -62,7 +62,7 @@ void printLog(PARTICULA *particles, int quantParticulas, int timestep, char* typ
 
 __global__ void simulacao(PARTICULA* particula, int quantParticulas, int timesteps, double dt);
 
-__host__ __device__ void calcula_forca(PARTICULA* particula, int quantParticulas, double dt, int tid) {
+__device__ void calcula_forca(PARTICULA* particula, int quantParticulas, double dt, int tid) {
     int j, k;
     double dx, dy, dz;
 
@@ -103,9 +103,7 @@ __global__ void simulacao(PARTICULA* particula, int quantParticulas, int timeste
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     for(i = 0; i < timesteps; i++)
     {
-        
         calcula_forca(particula, quantParticulas, dt, tid);
-
     }
 }
 
@@ -135,9 +133,13 @@ int main (int ac, char **av)
 
     int block_size = 256;
     int grid_size = ((quantParticulas + block_size) / block_size);
+
+
     cudaMalloc((void**)&d_particula, sizeof(PARTICULA) * quantParticulas);
     cudaMemcpy(d_particula, particulas, sizeof(PARTICULA) * quantParticulas, cudaMemcpyHostToDevice);
+
     simulacao<<<grid_size,block_size>>>(d_particula, quantParticulas, timesteps, dt);
+
     cudaMemcpy(particulas, d_particula, sizeof(PARTICULA) * quantParticulas, cudaMemcpyDeviceToHost);
     cudaFree(d_particula);
 

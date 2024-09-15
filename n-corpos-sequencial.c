@@ -1,5 +1,22 @@
 #include "headers/Definitions.h"
 
+float distance(float *dx, float *dy, float *dz, PARTICULA A, PARTICULA B){
+    float x = A.coord.x - B.coord.x;
+    float y = A.coord.y - B.coord.y;
+    float z = A.coord.z - B.coord.z;
+    
+    *dx = x;
+    *dy = y;
+    *dz = z;
+
+    float d = (x * x) + (y * y) + (z * z) + EPSILON;
+    d = 1.0f/sqrt(d); //   1/d²
+    return (d * d);
+
+    
+
+}
+
 void simulacao(PARTICULA* particula, int quantParticulas, int timesteps, double dt)
 {
     int i, j, k;
@@ -13,9 +30,9 @@ void simulacao(PARTICULA* particula, int quantParticulas, int timesteps, double 
                 {
                     double dx = 0.0f, dy = 0.0f, dz = 0.0f;
                     double forca = calculaForca(particula[j], particula[k], &dx, &dy, &dz);
-                    particula[j].forca_sofrida.x = dx * forca;
-                    particula[j].forca_sofrida.y = dy * forca;
-                    particula[j].forca_sofrida.z = dz * forca;
+                    particula[j].forca_sofrida.x += dx * forca;
+                    particula[j].forca_sofrida.y += dy * forca;
+                    particula[j].forca_sofrida.z += dz * forca;
                 }
             }
         }
