@@ -1,5 +1,7 @@
 {
-    "files.associations": {
-        "definitions.h": "c"
-    }
+  "files.associations": {
+    "definitions.h": "c",
+    "__config": "cpp",
+    "cmath": "cpp"
+  }
 }
