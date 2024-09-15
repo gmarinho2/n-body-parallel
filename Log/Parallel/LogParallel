@@ -178,3 +178,33 @@ Número de Particulas: 10
 Memória em bytes:80
 Tempo em segundos:0.200011
 -----------------------------
+Timesteps: 2
+Número de Particulas: 10
+Memória em bytes:80
+Tempo em segundos:0.001134
+-----------------------------
+Timesteps: 100
+Número de Particulas: 1000
+Memória em bytes:8000
+Tempo em segundos:14.237063
+-----------------------------
+Timesteps: 100
+Número de Particulas: 1000
+Memória em bytes:8000
+Tempo em segundos:15.393852
+-----------------------------
+Timesteps: 100
+Número de Particulas: 1000
+Memória em bytes:8000
+Tempo em segundos:15.362157
+-----------------------------
+Timesteps: 100
+Número de Particulas: 1000
+Memória em bytes:8000
+Tempo em segundos:15.410212
+-----------------------------
+Timesteps: 100
+Número de Particulas: 1000
+Memória em bytes:8000
+Tempo em segundos:14.772405
+-----------------------------

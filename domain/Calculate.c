@@ -4,7 +4,6 @@ double calculaDistancia(PARTICULA a, PARTICULA b)
 {
     double distancia;
     distancia = sqrt(pow(a.coord.x - b.coord.x, 2) + pow(a.coord.y - b.coord.y, 2) + pow(a.coord.z - b.coord.z, 2) + EPSILON);
-    printf("DISTANCIA : %f\n", distancia);
     return distancia;
 }
 
