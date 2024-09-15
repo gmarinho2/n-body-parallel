@@ -30,6 +30,8 @@ void simulacao(PARTICULA* particula, int quantParticulas, int timesteps, double 
                 {
                     double dx = 0.0f, dy = 0.0f, dz = 0.0f;
                     double forca = calculaForca(particula[j], particula[k], &dx, &dy, &dz);
+                    printf("FORCA : %f\n", forca);
+
                     particula[j].forca_sofrida.x += dx * forca;
                     particula[j].forca_sofrida.y += dy * forca;
                     particula[j].forca_sofrida.z += dz * forca;
@@ -79,7 +81,7 @@ int main (int ac, char **av)
     fclose(log);
 
     if (flagSave == 1)
-          printLog(particulas, quantParticulas, timesteps, "Sequencial");
+        printLog(particulas, quantParticulas, timesteps, "Sequencial");
     free(particulas);
 }
 
