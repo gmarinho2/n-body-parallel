@@ -18,7 +18,7 @@ void simulacao(PARTICULA* particula, int quantParticulas, int timesteps, double 
                         dx = 0.0f, dy = 0.0f, dz = 0.0f;
 
                         forca = calculaForca(particula[j], particula[k], &dx, &dy, &dz);
-                        
+
                         particula[j].forca_sofrida.x += dx * forca;
                         particula[j].forca_sofrida.y += dy * forca;
                         particula[j].forca_sofrida.z += dz * forca;
