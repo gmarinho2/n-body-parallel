@@ -2,6 +2,8 @@
   "files.associations": {
     "definitions.h": "c",
     "__config": "cpp",
-    "cmath": "cpp"
+    "cmath": "cpp",
+    "random": "cpp",
+    "*.tcc": "cpp"
   }
 }

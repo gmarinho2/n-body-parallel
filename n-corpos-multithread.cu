@@ -60,49 +60,33 @@ void printLog(PARTICULA *particles, int quantParticulas, int timestep, char* typ
     fprintf(stdout, "[OK]\n"); fflush(stdout);
 }
 
-__global__ void simulacao(PARTICULA* particula, int quantParticulas, int timesteps, double dt);
+__global__ void simulacao(PARTICULA* particula, int quantParticulas, double dt) {
+  int i = blockDim.x * blockIdx.x + threadIdx.x;
+  if (i < quantParticulas) {
 
-// __device__ void calcula_forca(PARTICULA* particula, int quantParticulas, double dt) {
+    for (int j = 0; j < quantParticulas; j++) {
+        if (i != j) {
+            double dx = particula[i].coord.x - particula[j].coord.x;
+            double dy = particula[i].coord.y - particula[j].coord.y;
+            double dz = particula[i].coord.z - particula[j].coord.z;
+            double dist = dx*dx + dy*dy + dz*dz + EPSILON;
+            double distSqrRoot = sqrt(dist);
+            double invDist = 1.0/pow(distSqrRoot,2);
 
-// }
-
-__global__ void simulacao(PARTICULA* particula, int quantParticulas, double dt)
-{
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (tid < quantParticulas) {
-
-        for(int j = 0; j < quantParticulas; j++) {
-
-            if (j != tid) {
-                double dx, dy, dz;
-
-                dx = 0.0f, dy = 0.0f, dz = 0.0f;
-
-                dx = particula[j].coord.x - particula[tid].coord.x; // influencia da força no 
-                dy = particula[j].coord.y - particula[tid].coord.y; // vetor decomposto, em cada eixo
-                dz = particula[j].coord.z - particula[tid].coord.z;
-
-                double distancia = sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2) + EPSILON);
-
-                double forca = 1.0 / pow(distancia, 2); //para nao dar zero
-
-                particula[j].forca_sofrida.x += dx * forca;
-                particula[j].forca_sofrida.y += dy * forca;
-                particula[j].forca_sofrida.z += dz * forca;
-
-               
-            }
-
-            particula[tid].velocidade.x += dt *  particula[tid].forca_sofrida.x;
-            particula[tid].velocidade.y += dt *  particula[tid].forca_sofrida.y;
-            particula[tid].velocidade.z += dt *  particula[tid].forca_sofrida.z;
-
-            particula[tid].coord.x += dt *  particula[tid].velocidade.x;
-            particula[tid].coord.y += dt *  particula[tid].velocidade.y;
-            particula[tid].coord.z += dt *  particula[tid].velocidade.z;             
+            particula[i].forca_sofrida.x += dx * invDist; 
+            particula[i].forca_sofrida.y += dy * invDist;
+            particula[i].forca_sofrida.z += dz * invDist; 
         }
     }
+
+    particula[i].velocidade.x += dt * particula[i].forca_sofrida.x; 
+    particula[i].velocidade.y += dt * particula[i].forca_sofrida.y; 
+    particula[i].velocidade.z += dt * particula[i].forca_sofrida.z;
+
+    particula[i].coord.x += dt *  particula[i].velocidade.x;
+    particula[i].coord.y += dt *  particula[i].velocidade.y;
+    particula[i].coord.z += dt *  particula[i].velocidade.z;  
+  }
 }
 
 
@@ -114,7 +98,7 @@ int main (int ac, char **av)
     t = clock();
 
     char logFile[1024];
-    double       dt        =  0.01f;
+    double       dt        =  0.01;
     PARTICULA *particulas = NULL;
     PARTICULA* d_particula;
 
@@ -124,28 +108,29 @@ int main (int ac, char **av)
     fprintf(stdout, "Memória utilizada %lu bytes \n", quantParticulas * sizeof(PARTICULA));
     fprintf(stdout, "Arquivo %s \n", logFile);
 
-    particulas = (PARTICULA *) aligned_alloc(ALING, quantParticulas * sizeof(PARTICULA));
+    particulas = (PARTICULA *) malloc(quantParticulas * sizeof(PARTICULA));
     assert(particulas != NULL);
 
     inicializador(particulas, quantParticulas);
 
-    int block_size = 8;
+    int block_size = 1024;
     int grid_size = ((quantParticulas + block_size - 1) / block_size);
 
-    cudaMalloc((void**)&d_particula, sizeof(PARTICULA) * quantParticulas);
+    cudaMalloc(&d_particula, sizeof(PARTICULA) * quantParticulas);
 
-    for (int i=0; i < timesteps; i++) {
-        cudaMalloc((void**)&d_particula, sizeof(PARTICULA) * quantParticulas);
+    cudaMemcpy(d_particula, particulas, sizeof(PARTICULA) * quantParticulas, cudaMemcpyHostToDevice);
 
-        cudaMemcpy(d_particula, particulas, sizeof(PARTICULA) * quantParticulas, cudaMemcpyHostToDevice);
+    for (int j=0; j < timesteps; j++) {
 
         simulacao<<<grid_size,block_size>>>(d_particula, quantParticulas, dt);
 
-        cudaMemcpy(particulas, d_particula, sizeof(PARTICULA) * quantParticulas, cudaMemcpyDeviceToHost);
-        
-        cudaFree(d_particula);
+        assert(cudaDeviceSynchronize() == cudaSuccess);
     }
+
+    cudaMemcpy(particulas, d_particula, sizeof(PARTICULA) * quantParticulas, cudaMemcpyDeviceToHost);
     
+    cudaFree(d_particula);
+
     t = clock() - t;
     double time_taken = ((double)t)/CLOCKS_PER_SEC;
     fprintf(stdout, "Tempo gasto: %lf (s) \n\n", time_taken);
