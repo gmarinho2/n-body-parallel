@@ -5,13 +5,11 @@
 #include <time.h>
 #include <math.h>
 #include <string.h>
-#include <omp.h>
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
 #define MASSA 1
 #define EPSILON 1E-9
-#define ALING 1024
 
 typedef struct vetor
 {
@@ -60,6 +58,18 @@ void printLog(PARTICULA *particles, int quantParticulas, int timestep, char* typ
     fprintf(stdout, "[OK]\n"); fflush(stdout);
 }
 
+__device__ void atualizaVelocidade(PARTICULA* particula, double dt) {
+    particula->velocidade.x += dt * particula->forca_sofrida.x;
+    particula->velocidade.y += dt * particula->forca_sofrida.y;
+    particula->velocidade.z += dt * particula->forca_sofrida.z;
+}
+
+__device__ void atualizaCoordenada(PARTICULA* particula, double dt) {
+    particula->coord.x += dt * particula->velocidade.x;
+    particula->coord.y += dt * particula->velocidade.y;
+    particula->coord.z += dt * particula->velocidade.z;
+}
+
 __global__ void simulacao(PARTICULA* particula, int quantParticulas, double dt) {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
   if (i < quantParticulas) {
@@ -78,14 +88,11 @@ __global__ void simulacao(PARTICULA* particula, int quantParticulas, double dt) 
             particula[i].forca_sofrida.z += dz * invDist; 
         }
     }
+    atualizaVelocidade(&particula[i], dt);
+    __syncthreads();
 
-    particula[i].velocidade.x += dt * particula[i].forca_sofrida.x; 
-    particula[i].velocidade.y += dt * particula[i].forca_sofrida.y; 
-    particula[i].velocidade.z += dt * particula[i].forca_sofrida.z;
-
-    particula[i].coord.x += dt *  particula[i].velocidade.x;
-    particula[i].coord.y += dt *  particula[i].velocidade.y;
-    particula[i].coord.z += dt *  particula[i].velocidade.z;  
+    atualizaCoordenada(&particula[i], dt);
+    __syncthreads();
   }
 }
 
@@ -123,8 +130,7 @@ int main (int ac, char **av)
     for (int j=0; j < timesteps; j++) {
 
         simulacao<<<grid_size,block_size>>>(d_particula, quantParticulas, dt);
-
-        assert(cudaDeviceSynchronize() == cudaSuccess);
+        
     }
 
     cudaMemcpy(particulas, d_particula, sizeof(PARTICULA) * quantParticulas, cudaMemcpyDeviceToHost);
