@@ -4,9 +4,9 @@ void simulacao(PARTICULA *particula, int quantParticulas, int timesteps, double 
 {
     for (int i = 0; i < timesteps; i++)
     {
-        #pragma omp parallel shared(particula, quantParticulas, dt)
+#pragma omp parallel shared(particula, quantParticulas, dt)
         {
-            #pragma omp for
+#pragma omp for
             for (int j = 0; j < quantParticulas; j++)
             {
                 for (int k = 0; k < quantParticulas; k++)
@@ -26,9 +26,9 @@ void simulacao(PARTICULA *particula, int quantParticulas, int timesteps, double 
                 }
             }
 
-            #pragma omp barrier
+#pragma omp barrier
 
-            #pragma omp for
+#pragma omp for
             for (int j = 0; j < quantParticulas; j++)
             {
                 atualizaVelocidade(&particula[j], dt);
@@ -49,6 +49,9 @@ int main(int ac, char **av)
     double dt = 0.01f;
     PARTICULA *particulas = NULL;
 
+    double itime, ftime, exec_time;
+    itime = omp_get_wtime();
+
     strcpy(logFile, av[4]);
 
     fprintf(stdout, "\nSistema de particulas P2P(particula a particula)\n");
@@ -62,13 +65,15 @@ int main(int ac, char **av)
 
     simulacao(particulas, quantParticulas, timesteps, dt);
 
-    t = clock() - t;
-    double time_taken = ((double)t) / CLOCKS_PER_SEC;
+    ftime = omp_get_wtime();
+    double time_taken = ftime - itime;
+
     fprintf(stdout, "Tempo gasto: %lf (s) \n\n", time_taken);
 
     FILE *log = fopen(logFile, "a+");
     assert(log != NULL);
-    fprintf(log, "Timesteps: %d\nNúmero de Particulas: %d\nMemória em bytes:%lu\nTempo em segundos:%lf\n-----------------------------\n", timesteps, quantParticulas, quantParticulas * sizeof(particulas), time_taken);
+    // fprintf(log, "Timesteps: %d\nNúmero de Particulas: %d\nMemória em bytes:%lu\nTempo em segundos:%lf\n-----------------------------\n", timesteps, quantParticulas, quantParticulas * sizeof(particulas), time_taken);
+    fprintf(log, "%d,%d,%lu,%lf\n", timesteps, quantParticulas, quantParticulas * sizeof(particulas), time_taken);
     fclose(log);
 
     if (flagSave == 1)
