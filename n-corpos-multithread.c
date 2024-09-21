@@ -4,9 +4,9 @@ void simulacao(PARTICULA *particula, int quantParticulas, int timesteps, double 
 {
     for (int i = 0; i < timesteps; i++)
     {
-        #pragma omp parallel shared(particula, quantParticulas, dt)
+#pragma omp parallel shared(particula, quantParticulas, dt)
         {
-            #pragma omp for
+#pragma omp for
             for (int j = 0; j < quantParticulas; j++)
             {
                 for (int k = 0; k < quantParticulas; k++)
@@ -26,9 +26,9 @@ void simulacao(PARTICULA *particula, int quantParticulas, int timesteps, double 
                 }
             }
 
-            #pragma omp barrier
+#pragma omp barrier
 
-            #pragma omp for
+#pragma omp for
             for (int j = 0; j < quantParticulas; j++)
             {
                 atualizaVelocidade(&particula[j], dt);
@@ -42,8 +42,8 @@ int main(int ac, char **av)
 {
     int timesteps = atoi(av[1]), quantParticulas = atoi(av[2]), flagSave = atoi(av[3]);
 
-    clock_t t;
-    t = clock();
+    double itime, ftime, exec_time;
+    itime = omp_get_wtime();
 
     char logFile[1024];
     double dt = 0.01f;
@@ -62,8 +62,8 @@ int main(int ac, char **av)
 
     simulacao(particulas, quantParticulas, timesteps, dt);
 
-    t = clock() - t;
-    double time_taken = ((double)t) / CLOCKS_PER_SEC;
+    ftime = omp_get_wtime();
+    double time_taken = ftime - itime;
     fprintf(stdout, "Tempo gasto: %lf (s) \n\n", time_taken);
 
     FILE *log = fopen(logFile, "a+");
