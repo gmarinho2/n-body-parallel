@@ -60,24 +60,21 @@ void printLog(PARTICULA *particles, int quantParticulas, int timestep, char *typ
     fflush(stdout);
 }
 
-__device__ 
-void atualizaVelocidade(PARTICULA *particula, double dt)
+__device__ void atualizaVelocidade(PARTICULA *particula, double dt)
 {
     particula->velocidade.x += dt * particula->forca_sofrida.x;
     particula->velocidade.y += dt * particula->forca_sofrida.y;
     particula->velocidade.z += dt * particula->forca_sofrida.z;
 }
 
-__device__ 
-void atualizaCoordenada(PARTICULA *particula, double dt)
+__device__ void atualizaCoordenada(PARTICULA *particula, double dt)
 {
     particula->coord.x += dt * particula->velocidade.x;
     particula->coord.y += dt * particula->velocidade.y;
     particula->coord.z += dt * particula->velocidade.z;
 }
 
-__global__ 
-void simulacao(PARTICULA *particula, int quantParticulas, double dt)
+__global__ void simulacao(PARTICULA *particula, int quantParticulas, double dt)
 {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     if (i < quantParticulas)
@@ -152,7 +149,9 @@ int main(int ac, char **av)
 
     FILE *log = fopen(logFile, "a+");
     assert(log != NULL);
-    fprintf(log, "Timesteps: %d\nNúmero de Particulas: %d\nMemória em bytes:%lu\nTempo em segundos:%lf\n-----------------------------\n", timesteps, quantParticulas, quantParticulas * sizeof(particulas), time_taken);
+    // fprintf(log, "Timesteps: %d\nNúmero de Particulas: %d\nMemória em bytes:%lu\nTempo em segundos:%lf\n-----------------------------\n", timesteps, quantParticulas, quantParticulas * sizeof(particulas), time_taken);
+    fprintf(log, "%d,%d,%lu,%lf\n", timesteps, quantParticulas, quantParticulas * sizeof(particulas), time_taken);
+
     fclose(log);
 
     if (flagSave == 1)
